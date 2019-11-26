@@ -87,16 +87,8 @@ WHERE   A.s_id = B.s_id
         AND C.c_id = '02'
         AND B.s_score > C.s_score;
 ----实现思路 先找到所有学生的01课程,再找到所有学生的02课程,对齐其学生的课程进行大小判断的出结论,使用join关联表的方式
-SELECT  a.* ,
-        b.s_score AS [01] ,
-        c.s_score AS [02]
-FROM    dbo.Student a
-        LEFT JOIN dbo.Score b ON a.s_id = b.s_id
-                                 AND b.c_id = '01'
-        LEFT JOIN dbo.Score c ON a.s_id = c.s_id
-                                 AND c.c_id = '02'
-WHERE   b.s_score > c.s_score;
-
+SELECT  a.* ,b.s_score AS [01] , c.s_score AS [02]
+FROM dbo.Student a LEFT JOIN dbo.Score b ON a.s_id = b.s_id AND b.c_id = '01' LEFT JOIN dbo.Score c ON a.s_id = c.s_id AND c.c_id = '02' WHERE   b.s_score > c.s_score;
 
 -- 2、查询"01"课程比"02"课程成绩低的学生的信息及课程分数
 
@@ -141,8 +133,6 @@ SELECT  a.s_id,a.s_name,COUNT(b.c_id)AS  sum_course,SUM(b.s_score) AS sum_score 
 on a.s_id=b.s_id GROUP BY a.s_id,a.s_name
 
 
-
-
 -- 6、查询"李"姓老师的数量 
 SELECT COUNT(*) AS [COUNT] FROM dbo.Teacher where t_name like '李%'
 -- 7、查询学过"张三"老师授课的同学的信息 
@@ -173,8 +163,6 @@ SELECT * FROM dbo.Student a WHERE a.s_id IN (SELECT s_id FROM dbo.Score WHERE c_
 -- 11、查询没有学全所有课程的同学的信息 
 SELECT  c.s_name FROM dbo.Course a join dbo.Score b ON b.c_id = a.c_id RIGHT join dbo.Student c ON c.s_id = b.s_id
  GROUP BY c.s_name HAVING COUNT(a.c_id)<(SELECT COUNT(DISTINCT c_id) FROM dbo.Course)
-
-
 
 select *
 from student
@@ -250,8 +238,6 @@ from score a left join course b on a.c_id = b.c_id GROUP BY a.c_id,b.c_name
 -- 19、按各科成绩进行排序，并显示排名
 select  b.c_name,s_score,rank()over( partition by b.c_name order by a.s_score desc) as ro from dbo.score a left join dbo.course b on b.c_id = a.c_id group  by b.c_name,a.s_score
 
-
-
 -- 20、查询学生的总成绩并进行排名
 SELECT *,RANK()OVER(ORDER BY c.sum_score desc) AS 排名 FROM (SELECT a.s_name,ISNULL(SUM(b.s_score),0) AS sum_score FROM dbo.Student a LEFT JOIN dbo.Score b ON a.s_id=b.s_id GROUP BY a.s_name) c 
 
@@ -259,14 +245,12 @@ SELECT *,RANK()OVER(ORDER BY c.sum_score desc) AS 排名 FROM (SELECT a.s_name,I
 SELECT c.t_name,b.c_name,AVG(a.s_score) AS 平均分 FROM dbo.Score a RIGHT JOIN dbo.Course b ON a.c_id=b.c_id RIGHT JOIN teacher c ON c.t_id=b.t_id GROUP BY c.t_name,b.c_name ORDER BY 平均分 DESC
 
 -- 22、查询所有课程的成绩第2名到第3名的学生信息及该课程成绩
-
 SELECT * FROM (
 SELECT *,RANK()OVER(PARTITION BY d.c_name ORDER BY d.Score DESC	) AS rownumber FROM (SELECT a.s_name,c.c_name,SUM(b.s_score) AS Score FROM dbo.Student a LEFT JOIN dbo.Score b ON a.s_id=b.s_id LEFT JOIN dbo.Course c ON c.c_id=b.c_id
 GROUP BY a.s_name,c.c_name) d ) e WHERE e.rownumber IN (2,3) ORDER BY e.c_name
 
 
 -- 23、统计各科成绩各分数段人数：课程编号,课程名称,[100-85],[85-70],[70-60],[0-60]及所占百分比
-
 SELECT DISTINCT a.c_id, a.c_name,
 SUM(CASE WHEN b.s_score<=100 AND b.s_score>85 THEN 1 ELSE 0 END ) AS [100-85数量],
 100.0*SUM(CASE WHEN b.s_score<=100 AND b.s_score>85 THEN 1 ELSE 0 END)/COUNT(1) AS [100-85],
@@ -280,29 +264,34 @@ COUNT(1) AS 总数量
  FROM dbo.Course a LEFT JOIN dbo.Score b ON b.c_id = a.c_id
 GROUP BY a.c_id,a.c_name
 
-
 -- 24、查询学生平均成绩及其名次 
 SELECT *,RANK()OVER(ORDER BY c.Score desc) AS 名次 FROM (SELECT a.s_name,ISNULL(AVG(b.s_score),0) AS Score FROM dbo.Student a LEFT JOIN dbo.Score b ON b.s_id = a.s_id  GROUP BY a.s_name) c
-
 
 -- 25、查询各科成绩前三名的记录
 SELECT * FROM (SELECT *,RANK()OVER(PARTITION BY c.c_name ORDER BY c.Score desc) AS rank FROM (SELECT a.[s_id],b.c_name,SUM(a.s_score) AS Score FROM dbo.Score a LEFT JOIN dbo.Course b ON b.c_id = a.c_id
 GROUP BY a.[s_id],b.c_name) c  ) d LEFT JOIN dbo.Student e ON e.s_id = d.s_id WHERE d.rank <=3
+
 -- 26、查询每门课程被选修的学生数 
 SELECT c_name, COUNT(1) FROM dbo.Score a LEFT JOIN dbo.Course b ON a.c_id=b.c_id GROUP BY c_name
+
 -- 27、查询出只有两门课程的全部学生的学号和姓名 
 SELECT * FROM (SELECT a.s_id FROM dbo.Score a LEFT JOIN course b ON b.c_id = a.c_id GROUP BY a.s_id HAVING COUNT(1)=2) c LEFT JOIN dbo.Student d ON d.s_id = c.s_id
+
 -- 28、查询男生、女生人数 
 SELECT s_sex,COUNT(1) AS 人数 FROM dbo.Student GROUP BY s_sex
+
 -- 29、查询名字中含有"风"字的学生信息
 SELECT * FROM student WHERE s_name LIKE  N'%风%'
+
 -- 30、查询同名同性学生名单，并统计同名人数 
 SELECT s_name,COUNT(s_id) AS 同名人数  FROM dbo.Student GROUP BY s_name HAVING COUNT(s_id)>1 
 
 -- 31、查询1990年出生的学生名单
 SELECT * FROM dbo.Student WHERE YEAR(s_biryh)=1990
+
 -- 32、查询每门课程的平均成绩，结果按平均成绩降序排列，平均成绩相同时，按课程编号升序排列 
 SELECT b.c_name,a.c_id,AVG(a.s_score) AS avg FROM dbo.Score a LEFT JOIN dbo.Course b ON b.c_id = a.c_id GROUP BY b.c_name,a.c_id ORDER BY AVG(a.s_score) DESC, a.c_id asc
+
 -- 33、查询平均成绩大于等于85的所有学生的学号、姓名和平均成绩 
 SELECT a.s_name,a.s_id,AVG(b.s_score) AS avg FROM dbo.Student a LEFT JOIN dbo.Score b ON b.s_id = a.s_id GROUP BY a.s_name,a.s_id HAVING AVG(b.s_score)>85
 
@@ -323,32 +312,64 @@ SUM(CASE c.c_name WHEN '英语' THEN b.s_score ELSE 0 END )AS 英语,
 
 -- 36、查询任何一门课程成绩在70分以上的姓名、课程名称和分数；
 SELECT a.s_name,c.c_name,b.s_score FROM dbo.Student a LEFT JOIN dbo.Score b ON b.s_id = a.s_id LEFT JOIN dbo.Course c ON c.c_id = b.c_id  WHERE b.s_score>=70
+
 -- 37、查询不及格的课程
 SELECT b.c_name,a.s_score FROM dbo.Score a LEFT JOIN dbo.Course b ON a.c_id=b.c_id WHERE a.s_score<60
+
 -- 38、查询课程编号为01且课程成绩在80分以上的学生的学号和姓名； 
 SELECT b.s_id,c.s_name FROM dbo.Course a LEFT JOIN dbo.Score b ON b.c_id = a.c_id RIGHT JOIN dbo.Student c ON c.s_id = b.s_id WHERE a.c_id='01' AND b.s_score>80
+
 -- 39、求每门课程的学生人数 
 SELECT a.c_name,a.c_id,COUNT(b.s_id) FROM dbo.Course a LEFT JOIN dbo.Score b ON b.c_id = a.c_id group BY a.c_name,a.c_id
+
 -- 40、查询选修"张三"老师所授课程的学生中，成绩最高的学生信息及其成绩
 --找到张三,找到张三老师最大的分数,通过关联所有信息找到张三,找到最大分数,可查询出相同分数的学生
 select a.t_name,d.s_name,d.s_sex,d.s_biryh,c.s_score from teacher  a left join dbo.course b on b.t_id = a.t_id left join dbo.score c on c.c_id = b.c_id left join dbo.student d on d.s_id = c.s_id where a.t_name='张三' and c.s_score in (select max(s_score) as max from dbo.score where c_id=(select b.c_id from dbo.teacher a,dbo.course b where a.t_id=b.t_id and a.t_name='张三'))
+
 -- 41、查询不同课程成绩相同的学生的学生编号、课程编号、学生成绩 
 --通过两张相同的成绩表,找到分数相同学生id不同的信息,去除重复后得出所有的信息
 select distinct b.s_id,b.c_id,b.s_score from dbo.score a,dbo.score b where a.c_id!=b.c_id and a.s_score=b.s_score	
 select distinct a.s_id,a.c_id,a.s_score from dbo.score a,dbo.score b where a.c_id!=b.c_id and a.s_score=b.s_score	
+
 -- 42、查询每门功成绩最好的前两名 
 SELECT * FROM (SELECT c.c_name,c.Score,d.s_name,d.s_biryh,d.s_sex,DENSE_RANK()OVER(PARTITION BY c.c_name ORDER BY c.Score desc) AS ro FROM (SELECT a.s_id,b.c_name,SUM(a.s_score) AS Score FROM dbo.Score a,dbo.Course b WHERE a.c_id=b.c_id GROUP BY a.s_id,b.c_name) c LEFT JOIN dbo.Student d ON d.s_id = c.s_id) e WHERE e.ro<3
 
--- 43、统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列  
--- 44、检索至少选修两门课程的学生学号 
--- 45、查询选修了全部课程的学生信息 
--- 46、查询各学生的年龄
-	-- 按照出生日期来算，当前月日 < 出生年月的月日则，年龄减一
--- 47、查询本周过生日的学生
--- 48、查询下周过生日的学生
--- 49、查询本月过生日的学生
--- 50、查询下月过生日的学生
+-- 43、统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列 
+select b.c_name,b.c_id,count(1) as 选修人数 from dbo.score a left join dbo.course b on b.c_id = a.c_id group by b.c_name,b.c_id having count(1)>5 order by 选修人数 desc,b.c_id asc
 
+-- 44、检索至少选修两门课程的学生学号 
+SELECT c.s_name ,c.s_id ,COUNT(1)AS 选修课程 FROM dbo.Score a LEFT JOIN dbo.Course b ON b.c_id = a.c_id LEFT JOIN dbo.Student c ON	c.s_id = a.s_id GROUP BY c.s_name,c.s_id  HAVING COUNT(1)>=2 
+
+-- 45、查询选修了全部课程的学生信息 
+SELECT c.s_name,c.s_id,COUNT(1) AS 选修课程 FROM dbo.Score a LEFT JOIN dbo.Course b ON a.c_id=b.c_id LEFT JOIN dbo.Student c ON	c.s_id = a.s_id GROUP BY c.s_name,c.s_id HAVING COUNT(1)=(SELECT distinct COUNT(1) FROM dbo.Course)
+
+-- 46、查询各学生的年龄
+--YEAR(GETDATE())-YEAR(s_biryh) AS age,不够严谨实际年龄会比正常年龄偏大
+	-- 按照出生日期来算，当前月日 < 出生年月的月日则，年龄减一
+SELECT *,DATEDIFF(DAY,s_biryh,GETDATE())/365 AS age FROM dbo.Student
+
+-- 47、查询本周过生日的学生
+--思路:本周开始时间,本周结束时间
+SELECT * FROM ( SELECT *,FORMAT(CAST(s_biryh AS DATETIME),'MM-dd') AS monthday FROM dbo.Student) c WHERE c.monthday BETWEEN	FORMAT(DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),0),'MM-dd') AND FORMAT(DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),6),'MM-dd')
+--本周开始时间,结束时间
+SELECT DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),0),DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),6)
+--本周开始时间是地几天,结束时间是地几天
+SELECT DATEPART(DAYOFYEAR,DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),0)) AS 本周第一天,DATEPART(DAYOFYEAR,GETDATE()),DATEPART(DAYOFYEAR,DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),6))AS 本周最后一天
+
+-- 48、查询下周过生日的学生
+SELECT * FROM (SELECT *,FORMAT(CAST(s_biryh AS DATETIME),'MM-dd') AS monthday FROM dbo.Student) b WHERE b.monthday BETWEEN	FORMAT(DATEADD(WEEK,1,DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),0)),'MM-dd') AND FORMAT(DATEADD(WEEK,1,DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),6)),'MM-dd')
+--下周开始时间，结束时间
+SELECT DATEADD(WEEK,1,DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),0)),DATEADD(WEEK,1,DATEADD(WEEK,DATEDIFF(WEEK,0,GETDATE()),6))
+
+-- 49、查询本月过生日的学生
+SELECT * FROM (SELECT *,FORMAT(CAST(s_biryh AS DATETIME),'MM') AS month FROM dbo.Student) a WHERE a.month=(FORMAT(GETDATE(),'MM'))
+--本月开始时间，结束时间
+SELECT DATEADD(MONTH,DATEDIFF(MONTH,0,GETDATE()),0),DATEADD(DAY,-1,DATEADD(MONTH,1,DATEADD(MONTH,DATEDIFF(MONTH,0,GETDATE()),0)))
+
+-- 50、查询下月过生日的学生
+SELECT * FROM (SELECT *,FORMAT(CAST(s_biryh AS DATETIME),'MM') AS month FROM dbo.Student) a WHERE a.month=(FORMAT(DATEADD(MONTH,1,GETDATE()),'MM'))
+--下个月开始时间，结束时间
+SELECT DATEADD(MONTH,1,DATEADD(MONTH,DATEDIFF(MONTH,0,GETDATE()),0)),DATEADD(DAY,-1,DATEADD(MONTH,2,DATEADD(MONTH,DATEDIFF(MONTH,0,GETDATE()),0)))
 
 USE test
 SELECT  [c_id],[c_name],[t_id]FROM [test].[dbo].[Course] --课程表
@@ -357,3 +378,4 @@ SELECT  [s_id],[s_name],[s_biryh],[s_sex]FROM [test].[dbo].[Student] --学生表
 SELECT  [t_id],[t_name]FROM [test].[dbo].[Teacher] --老师表
 
 
+--练习时间：2019-11-26 17:14
