@@ -323,18 +323,33 @@ SUM(CASE c.c_name WHEN '英语' THEN b.s_score ELSE 0 END )AS 英语,
 
 -- 36、查询任何一门课程成绩在70分以上的姓名、课程名称和分数；
 SELECT a.s_name,c.c_name,b.s_score FROM dbo.Student a LEFT JOIN dbo.Score b ON b.s_id = a.s_id LEFT JOIN dbo.Course c ON c.c_id = b.c_id  WHERE b.s_score>=70
-
---SELECT * FROM (SELECT  * FROM (SELECT a.s_name,
---SUM(CASE c.c_name  WHEN  '语文' THEN b.s_score ELSE 0 end) AS 语文,
---SUM(CASE c.c_name WHEN '数学' THEN b.s_score ELSE 0 END ) AS 数学,
---SUM(CASE c.c_name WHEN '英语' THEN b.s_score ELSE 0 END )AS 英语
--- FROM dbo.Student a LEFT JOIN dbo.Score b ON b.s_id = a.s_id LEFT JOIN dbo.Course c ON c.c_id = b.c_id  WHERE b.s_score>=70 GROUP BY a.s_name,c.c_name) d) mm GROUP BY mm.s_name,mm.语文,mm.数学,mm.英语
-
-
 -- 37、查询不及格的课程
+SELECT b.c_name,a.s_score FROM dbo.Score a LEFT JOIN dbo.Course b ON a.c_id=b.c_id WHERE a.s_score<60
 -- 38、查询课程编号为01且课程成绩在80分以上的学生的学号和姓名； 
+SELECT b.s_id,c.s_name FROM dbo.Course a LEFT JOIN dbo.Score b ON b.c_id = a.c_id RIGHT JOIN dbo.Student c ON c.s_id = b.s_id WHERE a.c_id='01' AND b.s_score>80
 -- 39、求每门课程的学生人数 
+SELECT a.c_name,a.c_id,COUNT(b.s_id) FROM dbo.Course a LEFT JOIN dbo.Score b ON b.c_id = a.c_id group BY a.c_name,a.c_id
 -- 40、查询选修"张三"老师所授课程的学生中，成绩最高的学生信息及其成绩
+--找到张三,找到张三老师最大的分数,通过关联所有信息找到张三,找到最大分数,可查询出相同分数的学生
+select a.t_name,d.s_name,d.s_sex,d.s_biryh,c.s_score from teacher  a left join dbo.course b on b.t_id = a.t_id left join dbo.score c on c.c_id = b.c_id left join dbo.student d on d.s_id = c.s_id where a.t_name='张三' and c.s_score in (select max(s_score) as max from dbo.score where c_id=(select b.c_id from dbo.teacher a,dbo.course b where a.t_id=b.t_id and a.t_name='张三'))
+-- 41、查询不同课程成绩相同的学生的学生编号、课程编号、学生成绩 
+--通过两张相同的成绩表,找到分数相同学生id不同的信息,去除重复后得出所有的信息
+select distinct b.s_id,b.c_id,b.s_score from dbo.score a,dbo.score b where a.c_id!=b.c_id and a.s_score=b.s_score	
+select distinct a.s_id,a.c_id,a.s_score from dbo.score a,dbo.score b where a.c_id!=b.c_id and a.s_score=b.s_score	
+-- 42、查询每门功成绩最好的前两名 
+SELECT * FROM (SELECT c.c_name,c.Score,d.s_name,d.s_biryh,d.s_sex,DENSE_RANK()OVER(PARTITION BY c.c_name ORDER BY c.Score desc) AS ro FROM (SELECT a.s_id,b.c_name,SUM(a.s_score) AS Score FROM dbo.Score a,dbo.Course b WHERE a.c_id=b.c_id GROUP BY a.s_id,b.c_name) c LEFT JOIN dbo.Student d ON d.s_id = c.s_id) e WHERE e.ro<3
+
+-- 43、统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列  
+-- 44、检索至少选修两门课程的学生学号 
+-- 45、查询选修了全部课程的学生信息 
+-- 46、查询各学生的年龄
+	-- 按照出生日期来算，当前月日 < 出生年月的月日则，年龄减一
+-- 47、查询本周过生日的学生
+-- 48、查询下周过生日的学生
+-- 49、查询本月过生日的学生
+-- 50、查询下月过生日的学生
+
+
 USE test
 SELECT  [c_id],[c_name],[t_id]FROM [test].[dbo].[Course] --课程表
 SELECT  [s_id],[c_id],[s_score]FROM [test].[dbo].[Score] --成绩表
