@@ -35,6 +35,7 @@ def down_img(url,title_page):
                 with open('./keaitupian/'+title+'/'+img_src_list.get('src').split('/')[8],'wb') as img:
                     img.write(requests.get(img_src_list.get('src'),headers=headers,timeout=10).content)
                     img.close()
+                print('./keaitupian/'+title+'/'+img_src_list.get('src').split('/')[8])
             except ReadTimeout:
                 print('read time out error')
 
@@ -59,7 +60,7 @@ def get_tag():
         return res_xpath.xpath('//div[@id="JwaterFall"]/ul/li/div[1]/a/@href')
 
 def main():
-    url_list='https://m.keaitupian.com/pic/6118.html'
+    url_list='https://m.keaitupian.com/pic/6056.html'
     # for url_list in get_tag():
     #     get_title_page(url_list)
     #     down_img(url_list,get_title_page(url_list))

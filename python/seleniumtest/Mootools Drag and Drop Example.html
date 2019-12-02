@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- saved from url=(0045)http://sahitest.com/demo/dragDropMooTools.htm -->
+<html lang="en" class=""><script src="chrome-extension://ljdobmomdgdljniojadhoplhkpialdid/page/prompt.js"></script><script src="chrome-extension://ljdobmomdgdljniojadhoplhkpialdid/page/runScript.js"></script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Mootools Drag and Drop Example</title>
+
+<style type="text/css">
+body {color:#000;background-color:#FFF; font-family:Arial, Helvetica, sans-serif;}
+
+#dragger {width:100px;height:100px;border:1px solid pink;position:relative;z-index:50;padding:4px;}
+.item {width:100px;height:100px;border:3px solid blue;position:relative;float:left;margin:5px;padding:4px;}
+.drag {background-color:#EFE;}
+.dragover {border:3px solid #900;background-color:#FEE;color:#000;}
+.dropped {border:3px solid #009;background-color:#339;color:#FFF;}
+</style>
+<script type="text/javascript" src="./Mootools Drag and Drop Example_files/mootools.release.51.js.下载"></script>
+
+<script type="text/javascript">
+
+  var draggableOptions = {
+      onStart:function()
+      {
+        this.el.setOpacity(.5);
+      },
+      onComplete:function()
+      {
+        // put the element back where it belongs
+        this.el.setOpacity(1);
+        this.el.style.left = 0;
+        this.el.style.top = 0;
+      }
+  };
+
+  var droppableOptions = {
+      onOver:function(){
+          this.addClassName('dragover');
+      },
+      onLeave:function(){
+        this.removeClassName('dragover');
+      },
+      onDrop:function(){
+        this.addClassName('dropped');
+        this.innerHTML = 'dropped';
+      }
+  }
+
+  window.onload=function()
+  {
+    var dropitems = document.getElementsBySelector('.item');
+    dropitems.each(function(drop){ drop.extend(droppableOptions)   });
+    draggableOptions.droppables = dropitems;
+    $('dragger').addClassName('drag').makeDraggable(draggableOptions);
+
+  }
+  </script>
+<link type="text/css" rel="stylesheet" charset="UTF-8" href="./Mootools Drag and Drop Example_files/translateelement.css"></head>
+<body style="background-color: rgb(237, 242, 235);">
+  <h1>Mootools Drag and Drop example</h1>
+  <p><a href="http://web.archive.org/web/20100820130300/http://www.snook.ca/archives/javascript/mootools_drag_a/">See related post »</a></p>
+
+  <div id="dragger" class="drag">Drag me</div>
+  <div class="item">Item 1</div><div class="item">Item 2</div><div class="item">Item 3</div><div class="item">Item 4</div>
+
+<div id="goog-gt-tt" class="skiptranslate" dir="ltr"><div style="padding: 8px;"><div><div class="logo"><img src="./Mootools Drag and Drop Example_files/translate_24dp.png" width="20" height="20" alt="Google 翻译"></div></div></div><div class="top" style="padding: 8px; float: left; width: 100%;"><h1 class="title gray">原文</h1></div><div class="middle" style="padding: 8px;"><div class="original-text"></div></div><div class="bottom" style="padding: 8px;"><div class="activity-links"><span class="activity-link">提供更好的翻译建议</span><span class="activity-link"></span></div><div class="started-activity-container"><hr style="color: #CCC; background-color: #CCC; height: 1px; border: none;"><div class="activity-root"></div></div></div><div class="status-message" style="display: none;"></div></div><div class="iciba-root"></div><div class="goog-te-spinner-pos"><div class="goog-te-spinner-animation"><svg xmlns="http://www.w3.org/2000/svg" class="goog-te-spinner" width="96px" height="96px" viewBox="0 0 66 66"><circle class="goog-te-spinner-path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle></svg></div></div></body></html>

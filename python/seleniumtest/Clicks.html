@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- saved from url=(0035)http://sahitest.com/demo/clicks.htm -->
+<html><script src="chrome-extension://ljdobmomdgdljniojadhoplhkpialdid/page/prompt.js"></script><script src="chrome-extension://ljdobmomdgdljniojadhoplhkpialdid/page/runScript.js"></script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>
+Clicks
+</title>
+<script>
+function rcl(e){
+	if (!e) e = window.event;
+	document.f1.t2.value += "[RIGHT_CLICK]";
+}
+function dcl(e){
+	if (!e) e = window.event;
+	document.f1.t2.value += "[DOUBLE_CLICK]";
+}
+function cl(e){
+	if (!e) e = window.event;
+	document.f1.t2.value += "[CLICK]";
+}
+function onclick1(s){
+	document.f1.t2.value = "onclick_" + s;
+}
+function onchange1(s){    
+	document.f1.t2.value = "onchange_" + s;
+}
+</script></head>
+
+
+
+<body>
+<form name="f1">
+<textarea name="t2" style="width:200px;height:100px;"></textarea><br>
+<input type="button" onclick="document.f1.t2.value=&#39;&#39;" value="Clear" name="t1"><br><br><br>
+<div ondblclick="dcl(event)">dbl click me</div>
+<input type="button" value="dbl click me" ondblclick="dcl(event)"><br>
+<input type="button" value="click me" onclick="cl(event)"><br>
+<div oncontextmenu="rcl(event)">right click me</div>
+<input type="button" value="right click me" oncontextmenu="rcl(event)"><br>
+
+<br><input type="button" value="disable1" disabled=""><br>
+
+<br><br><br>
+
+<input type="checkbox" value="Click me" onclick="onclick1(&#39;c1&#39;)" onchange="onchange1(&#39;c1&#39;)">
+<input type="radio" name="r1" value="Click me" onclick="onclick1(&#39;r1&#39;)" onchange="onchange1(&#39;r1&#39;)">
+<input type="radio" name="r1" value="Click me" onclick="onclick1(&#39;r11&#39;)" onchange="onchange1(&#39;r11&#39;)">
+
+
+</form>
+
+<img src="./Clicks_files/add.gif" onclick="cl(event)" ondblclick="dcl(event)">
+
+<br><br>
+<ul>
+<li style=""><a tabindex="0" style=""><label class="checkbox" style=""><input value="SMC2" type="checkbox">SMC 2 Label</label></a></li>
+</ul>
+
+
+
+<div class="iciba-root"></div></body></html>
